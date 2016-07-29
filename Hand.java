@@ -13,6 +13,13 @@ public class Hand {
             cards[i] = myDeck.cards[i];
         }
     }
+
+    public static void main(String[] args) {
+        Hand myHand = new Hand();
+        System.out.println(myHand);
+        System.out.println(myHand.display());
+    }
+
     public String toString(){
         String myCards = "";
         for(int i = 0; i < cardsInOneHand; i++){
@@ -20,22 +27,21 @@ public class Hand {
         }
         return myCards;
     }
-    public static void main(String[] args) {
-        Hand myHand = new Hand();
-        System.out.println(myHand);
-        System.out.println(myHand.display());
-        //String[] Hands = {"Straight flush", "Four of a kind", "Full house", "Flush", "Straight", "Three of a kind", "Two pair", "One pair", "High card"};
-    }
-
     public String display() {
-        if (isSuitSameForAll5Cards() && isAllCardsNextToEachOther()) {
+        if (isSuitSameForAll5Cards() && isAllCardsNextToEachOther() && isFirstCardTen()) {
+            return "Royal Flush";
+        } else if (isSuitSameForAll5Cards() && isAllCardsNextToEachOther()) {
             return "Straight flush";
-        } else if (isAllCardsNextToEachOther()) {
-            return "Straight";
         } else if (maxCountOfSamePip() == 4){
             return "Four of a kind";
+        } else if (maxCountOfSamePip() == 3 && isTwoPair()){
+            return "Full House";
+        } else if (isSuitSameForAll5Cards()){
+            return "Flush";
+        } else if (isAllCardsNextToEachOther()) {
+            return "Straight";
         } else if (maxCountOfSamePip() == 3){
-            return "Three of a kind";
+            return "3 of a kind";
         } else if (isTwoPair()){
             return "Two pair";
         } else if (maxCountOfSamePip() == 2){
@@ -56,9 +62,15 @@ public class Hand {
     public boolean isAllCardsNextToEachOther(){
             Card[] sortedCards = sortCards();
             for(int i = 0; i < cardsInOneHand - 1; i++){
+                if(i == 0 && sortedCards[i].getPip() == "A" && sortedCards[i+1].getPip() == "T") continue;
                 if(sortedCards[i].compareTo(sortedCards[i+1]) != -1) return false;
             }
             return true;
+    }
+    public boolean isFirstCardTen(){
+        Card[] sortedCards = sortCards();
+        if(sortedCards[1].getPip() == "T") return true;
+        return false;
     }
     public Card[] sortCards(){
         ArrayList<Card> cardsList = new ArrayList<>();
@@ -83,24 +95,27 @@ public class Hand {
                 count = 1;
             }
         }
+        if (count > maxcount) maxcount = count;
         return maxcount;
     }
     public boolean isTwoPair(){
         int count = 1;
-        int maxcount = 1;
+        int maxCount = 1;
         int numOfPairs = 0;
         Card[] sortedCards = sortCards();
         for(int i = 0; i < cardsInOneHand - 1; i++){
             if(sortedCards[i].compareTo(sortedCards[i+1]) == 0){
                 count++;
+                numOfPairs++;
             }
             else{
-                if(count > maxcount) maxcount = count;
+                if(count > maxCount) maxCount = count;
                 count = 1;
-                if(maxcount == 2) numOfPairs++;
             }
         }
-        if(count == 2) numOfPairs++;
-        return (numOfPairs == 2);
+        if(maxCountOfSamePip() == 3){
+            return (numOfPairs >= 3);
+        }
+        return (numOfPairs >= 2);
     }
 }
